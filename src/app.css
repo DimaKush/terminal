@@ -11,6 +11,29 @@
   font-family: 'Cascadia Code', monospace;
 }
 
+html, body {
+  overflow-x: hidden;
+  width: 100%;
+  position: relative;
+}
+
+#app {
+  max-width: 100vw;
+  overflow-x: hidden;
+}
+
+.terminal-output {
+  white-space: pre-wrap;
+  word-break: break-word;
+  overflow-wrap: break-word;
+}
+
+.terminal-output a {
+  text-decoration: underline;
+  color: #4f8cff;
+  cursor: pointer;
+}
+
 * {
   scrollbar-width: thin;
   scrollbar-color: #888 #f1f1f1;

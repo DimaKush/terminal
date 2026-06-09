@@ -14,12 +14,12 @@
     input.focus();
 
     if ($history.length === 0) {
-      const command = commands['banner'] as () => string;
+      const command = commands['who'] as () => string;
 
       if (command) {
         const output = command();
 
-        $history = [...$history, { command: 'banner', outputs: [output] }];
+        $history = [...$history, { command: 'who', outputs: [output] }];
       }
     }
   });
@@ -36,7 +36,7 @@
         track(commandName, ...args);
       }
 
-      const commandFunction = commands[commandName];
+      const commandFunction = commands[commandName.toLowerCase()];
 
       if (commandFunction) {
         const output = await commandFunction(args);
@@ -72,7 +72,7 @@
       event.preventDefault();
 
       const autoCompleteCommand = Object.keys(commands).find((cmd) =>
-        cmd.startsWith(command),
+        cmd.startsWith(command.toLowerCase()),
       );
 
       if (autoCompleteCommand) {
@@ -105,5 +105,7 @@
     bind:value={command}
     on:keydown={handleKeyDown}
     bind:this={input}
+    spellcheck={false}
+    autocomplete="off"
   />
 </div>

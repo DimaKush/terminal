@@ -17,8 +17,8 @@
     </div>
 
     {#each outputs as output}
-      <p class="whitespace-pre">
-        {output}
+      <p class="terminal-output">
+        {@html output}
       </p>
     {/each}
   </div>
