@@ -62,7 +62,7 @@ const openAlexaAiModal = () =>
   ]);
 
 const openGeneriProModal = () =>
-  openProjectModal('Generi.pro', [
+  openProjectModal('Freebanana.online', [
     'Multi-surface AI platform (Telegram bot + Mini App + API) that unifies authentication, balance/payments, and generation workflows across clients.',
     'FastAPI validates Telegram initData, issues JWT-scoped sessions, and serves shared domain services for both bot and web surfaces, with PostgreSQL + Redis event-driven processing for reliable async execution and retries.',
   ]);
@@ -326,7 +326,7 @@ Discord: <a href="https://discordapp.com/users/761573894065881089" target="_blan
 Telegram: <a href="https://t.me/kushnarevdn" target="_blank" rel="noopener noreferrer">https://t.me/kushnarevdn</a>
 
 Projects:
-<a href="https://blesed.eth.limo/" target="_blank" rel="noopener noreferrer">Altar - onchain giving economy platform</a> <a href="#" onclick="window.openAltarModal(); return false;" rel="noopener noreferrer">[about]</a>
+<a href="https://altar.dimakush.dev/" target="_blank" rel="noopener noreferrer">Altar - onchain giving economy platform</a> <a href="#" onclick="window.openAltarModal(); return false;" rel="noopener noreferrer">[about]</a>
 <a href="https://siwe.dimakush.eth.limo/" target="_blank" rel="noopener noreferrer">SIWE Signer</a> <a href="#" onclick="window.openSiweSignerModal(); return false;" rel="noopener noreferrer">[about]</a>
 <a href="https://willer-eth.vercel.app/" target="_blank" rel="noopener noreferrer">Willer - onchain testamentary notary</a> <a href="#" onclick="window.openWillerModal(); return false;" rel="noopener noreferrer">[about]</a>
 <a href="https://indonesianflashcard.vercel.app/" target="_blank" rel="noopener noreferrer">Indonesian Flash Card</a> <a href="#" onclick="window.openIndonesianFlashcardModal(); return false;" rel="noopener noreferrer">[about]</a>
@@ -339,7 +339,7 @@ Projects:
 <a href="https://thaiflashcard.vercel.app/" target="_blank" rel="noopener noreferrer">Thai Flash Card</a> <a href="#" onclick="window.openThaiFlashcardModal(); return false;" rel="noopener noreferrer">[about]</a>
 <a href="https://whitecube.space/" target="_blank" rel="noopener noreferrer">WhiteCube - Engineering Company</a> <a href="#" onclick="window.openWhitecubeModal(); return false;" rel="noopener noreferrer">[about]</a>
 <a href="https://t.me/alexa_ai_official_bot/" target="_blank" rel="noopener noreferrer">Alexa AI - image and video generation</a> <a href="#" onclick="window.openAlexaAiModal(); return false;" rel="noopener noreferrer">[about]</a>
-<a href="https://generi.pro" target="_blank" rel="noopener noreferrer">Generi.pro</a> + <a href="https://t.me/generi_pro_bot" target="_blank" rel="noopener noreferrer">Generi Pro Bot</a> <a href="#" onclick="window.openGeneriProModal(); return false;" rel="noopener noreferrer">[about]</a>
+<a href="https://freebanana.online" target="_blank" rel="noopener noreferrer">freebanana.online</a> + <a href="https://t.me/free_banana_online_bot" target="_blank" rel="noopener noreferrer">Freebanana Bot</a> <a href="#" onclick="window.openGeneriProModal(); return false;" rel="noopener noreferrer">[about]</a>
 <a href="https://t.me/vp_next_bot" target="_blank" rel="noopener noreferrer">vp-next — Telegram VPN bot (Telegram Stars, Xray configs)</a> <a href="#" onclick="window.openVpNextModal(); return false;" rel="noopener noreferrer">[about]</a>
 <a href="https://ConvinceMe.fun" target="_blank" rel="noopener noreferrer">ConvinceMeAI</a> <a href="#" onclick="window.openConvinceMeModal(); return false;" rel="noopener noreferrer">[about]</a>
 <a href="https://contractoor.org/" target="_blank" rel="noopener noreferrer">Contractoor — AI contract risk analysis + translation</a> <a href="#" onclick="window.openContractoorModal(); return false;" rel="noopener noreferrer">[about]</a>
