@@ -179,6 +179,32 @@ const openPrimfasadModal = () =>
     'Reliability: atomic YooKassa webhook processing (status-gated, amount/metadata validation), generation batch rollback on failure, API rate limiting + admin audit middleware, conflict-safe user upserts, and Docker Compose production stack (postgres, redis, bot, api, webapp) with shared env and health endpoints.',
   ]);
 
+const openPazaruModal = () =>
+  openProjectModal('Pazaru', [
+    'Pazaru is a Telegram Mini App trade match (closed beta): auth is HMAC-validated Telegram initData (WebAppData secret, hash + auth_date freshness) exchanged for a JWT-scoped Account, the core action is a seated room where the player hires merchants, places markets and workshops, and assigns buy/sell routes, and the result is an authoritative wealth ranking plus account-level win tokens and a one-level referral cut. There is no Stars or PSP leg — in-match gold stays inside the session, and meta payouts are server-credited on game end.',
+    'Architecture: React + Vite + TypeScript Mini App (Canvas 2D map with painted Han, desert, and Roman atlases, EN/RU, bottom-sheet shell) over a FastAPI WebSocket engine that owns the tick (markets, travel, trades, waves, timed events). Accounts, match results, route presets, and UI prefs persist in PostgreSQL via SQLAlchemy; live rooms stay in-process and flush a full match snapshot about every 2 seconds. Solo seats are filled by a planner bot. A Telegram bot webhook handles room invites (startapp=r_CODE), sticky referrals (startapp=ref_), community /bug and /idea, and ops alerts. Deploy is Docker Compose behind host nginx.',
+    'Reliability: client commands carry a command_id deduped per session/account/player for 300 seconds, WebSocket admission caps pending auth plus global, per-account, and per-room sockets, and resume rebinds the same seat after a WebView drop. PREP/RUNNING/PAUSED rooms restore from the snapshot store on boot; ENDED snapshots are deleted. Match payouts and the referral cut are idempotent on (account_id, session_id), so a retried game end cannot double-pay, and a referral code sticks only at account creation. Prod rejects anonymous join, gates the beta with a whitelist, and exposes /health/ready plus Prometheus counters scraped into a throttled admin-chat alert.',
+  ]);
+
+const openWalletConnectMcpModal = () =>
+  openProjectModal('WalletConnect MCP', [
+    'WalletConnect MCP (npm: https://www.npmjs.com/package/walletconnect-mcp-server, repo: https://github.com/DimaKush/walletConnectPlugin) is a production Cursor plugin where auth is a WalletConnect pairing approved in the user’s own wallet (QR or URI; the server never sees a private key), the core action is an agent call from chat — personal_sign, eth_sendTransaction, or wallet_switchEthereumChain — over the live session, and the result is the signature or tx hash returned into the editor. Value movement is that wallet-signed transaction; there is no off-chain payment processor.',
+    'The runtime is a TypeScript Node.js 18 MCP server on stdio (@modelcontextprotocol/sdk, Zod) using @walletconnect/sign-client against the Reown relay. SignClient and the active session stay in process memory; wc_connect returns the URI plus an in-process QR PNG. The same repo ships a Cursor skill and rule so the agent can also scaffold Reown AppKit (wagmi/ethers) dApps. Cursor starts it with npx -y walletconnect-mcp-server from the plugin manifest — no local path setup.',
+    'Requests are rejected before they reach the wallet unless the address and chain are in the approved session, the relay host is on the allowlist (relay.walletconnect.com / .org, relay.reown.com), and inputs stay inside hard caps (32 KiB messages, 128 KiB calldata, wei and gas bounds). wc_init is idempotent, disconnect always clears local session state even if the relay call fails, and proposal/request expiry plus stale topic events are swallowed so the process stays up and wc_connect can be reissued. wc_get_session races the pending approval for 5 minutes and, if that times out, recovers the latest SignClient session when the wallet already approved. No database, queue, or webhook rail — the wallet approval is the consistency boundary.',
+  ]);
+
+const openWeddingInviteModal = () =>
+  openProjectModal('Wedding Invitation', [
+    'Wedding Invitation (https://wedding-invitation.dimakush.dev/) is a production personal invite site for Calista & Dmitrii: each guest opens a slug URL (/ami, /denis-tsarev, …), the page resolves name + lang (+ gendered RU dear) from guests.json, unlocks a cover→music entrance, and walks through story/countdown/timeline/venue/gallery into an RSVP with attendance status, optional partner, and wishes/allergies notes.',
+    'Architecture is deliberately zero-framework: static HTML/CSS/vanilla JS with data-i18n packs (ID default + RU, including Russian plural forms), config-driven wedding date and webhook URL, and SPA-style deep links so one template serves every guest; local serve.py mirrors production slug fallback, production ships on Cloudflare Workers Assets (wrangler single-page-application not_found_handling).',
+    'RSVP is the only server-side leg—JSON POST to a Google Apps Script Web App that appends Timestamp/Slug/Name/Status/Partner/Comment into Sheets for live couple ops—with client-side validation, field length caps, no-cors fire-and-forget submit, and status-aware thank-you/decline overlays; no auth, payments, or app backend in the critical path by design.',
+  ]);
+const openVeksaModal = () =>
+  openProjectModal('Вёкса', [
+    'Вёкса is a production procurement workspace where users authenticate with email/password (bcrypt, JWT access + refresh), upload a specification plus supplier quotes (PDF/XLSX/DOCX), and get a finished competitive sheet: Claude extracts line items, VAT, currency, and delivery, positions are matched back to the spec, and the workbook highlights analogs, the two best prices, and overdue lead times. The same session covers equipment comparison, shortage-to-purchase tables, spec merge, supplementary-agreement generation, and online document signing (stamp/signature placement with a scan effect). There is no checkout in this product — the result is the file plus delivery notifications.',
+    'Architecture: React 19 + Vite + TypeScript SPA over FastAPI and SQLAlchemy 2 (asyncpg) on PostgreSQL. Heavy work is a Redis list queue (LPUSH after commit, BRPOP worker) with BuildJob rows and live progress in Redis. Document intake is pdfplumber/PyMuPDF plus Tesseract OCR, openpyxl, and python-docx; DOCX/XLSX→PDF goes through LibreOffice. Anthropic Claude (claude-sonnet-4-6, payload-scaled timeouts up to 600s) does extraction and matching. FX rates are cached in Redis for 24h. An admin WhatsApp surface (WHAPI webhooks) runs plan/report control in Asia/Almaty: template parse, mentions, reminders, and a weekly violation digest. Job completion fans out in-app, browser, email, and Telegram after a one-time /start link code.',
+    'Reliability: the worker ignores jobs that are no longer pending/running, sweeps stale pending/running rows past a module runtime cap and marks them failed, and notifies an auditor if a job crashes the process. Postgres pool_pre_ping, per-user upload paths, and short-lived download JWTs keep file access scoped. Plans/reports fire once per chat/day/action via PlansChatDayFlag, and the public webhook is gated by a path secret. User emails and employee phones are unique; Telegram update offsets live in Redis so link binding survives restarts.',
+  ]);
 (
   window as Window & {
     openAlexaAiModal?: () => void;
@@ -199,6 +225,10 @@ const openPrimfasadModal = () =>
     openConvinceMeModal?: () => void;
     openContractoorModal?: () => void;
     openPrimfasadModal?: () => void;
+    openPazaruModal?: () => void;
+    openWalletConnectMcpModal?: () => void;
+    openWeddingInviteModal?: () => void;
+    openVeksaModal?: () => void;
   }
 ).openAlexaAiModal = openAlexaAiModal;
 (window as Window & { openGeneriProModal?: () => void }).openGeneriProModal =
@@ -234,7 +264,14 @@ const openPrimfasadModal = () =>
   openContractoorModal;
 (window as Window & { openPrimfasadModal?: () => void }).openPrimfasadModal =
   openPrimfasadModal;
-
+(window as Window & { openPazaruModal?: () => void }).openPazaruModal =
+  openPazaruModal;
+(window as Window & { openWalletConnectMcpModal?: () => void }).openWalletConnectMcpModal =
+  openWalletConnectMcpModal;
+(window as Window & { openWeddingInviteModal?: () => void }).openWeddingInviteModal =
+  openWeddingInviteModal;
+(window as Window & { openVeksaModal?: () => void }).openVeksaModal =
+  openVeksaModal;
 export const commands: Record<string, (args: string[]) => Promise<string> | string> = {
   help: () => 'Available commands: ' + Object.keys(commands).join(', '),
   hostname: () => hostname,
@@ -305,6 +342,18 @@ export const commands: Record<string, (args: string[]) => Promise<string> | stri
       return 'Error: ' + (e instanceof Error ? e.message : String(e));
     }
   },
+// <a href="https://altar.dimakush.dev/" target="_blank" rel="noopener noreferrer">Altar - onchain giving economy platform</a> <a href="#" onclick="window.openAltarModal(); return false;" rel="noopener noreferrer">[about]</a>
+// <a href="https://thaiflashcard.vercel.app/" target="_blank" rel="noopener noreferrer">Thai Flash Card</a> <a href="#" onclick="window.openThaiFlashcardModal(); return false;" rel="noopener noreferrer">[about]</a>
+// <a href="https://autozilla.pro/" target="_blank" rel="noopener noreferrer">Autozilla.pro</a> + <a href="https://t.me/Autozilla_bot" target="_blank" rel="noopener noreferrer">Autozilla Bot</a> <a href="#" onclick="window.openAutozillaModal(); return false;" rel="noopener noreferrer">[about]</a>
+// <a href="https://t.me/Aia_iai_bot?start=_tgr_JncWzf9hMjBi" target="_blank" rel="noopener noreferrer">AIA image and video generation </a> <a href="#" onclick="window.openAiaModal(); return false;" rel="noopener noreferrer">[about]</a>
+// <a href="https://plantar.fun/register?ref=ref399YXPNOXS7WZY04" target="_blank" rel="noopener noreferrer">Plantar - plant exchange platform</a> <a href="#" onclick="window.openPlantarModal(); return false;" rel="noopener noreferrer">[about]</a>
+// <a href="https://pezdota.fun" target="_blank" rel="noopener noreferrer">DotA2 prediction markets</a> <a href="#" onclick="window.openPezdotaModal(); return false;" rel="noopener noreferrer">[about]</a>
+// <a href="https://t.me/vp_next_bot" target="_blank" rel="noopener noreferrer">vp-next — Telegram VPN bot (Telegram Stars, Xray configs)</a> <a href="#" onclick="window.openVpNextModal(); return false;" rel="noopener noreferrer">[about]</a>
+// <a href="https://ConvinceMe.fun" target="_blank" rel="noopener noreferrer">ConvinceMeAI</a> <a href="#" onclick="window.openConvinceMeModal(); return false;" rel="noopener noreferrer">[about]</a>
+// <a href="https://freebanana.online" target="_blank" rel="noopener noreferrer">freebanana.online</a> + <a href="https://t.me/free_banana_online_bot" target="_blank" rel="noopener noreferrer">Freebanana Bot</a> <a href="#" onclick="window.openGeneriProModal(); return false;" rel="noopener noreferrer">[about]</a>
+// <a href="https://contractoor.org/" target="_blank" rel="noopener noreferrer">Contractoor — AI contract risk analysis + translation</a> <a href="#" onclick="window.openContractoorModal(); return false;" rel="noopener noreferrer">[about]</a>
+// <a href="https://primfasad.com/" target="_blank" rel="noopener noreferrer">Primfasad — AI facade visualization + turnkey install (Primorye)</a> + <a href="https://t.me/primfasad_bot" target="_blank" rel="noopener noreferrer">Bot</a> <a href="#" onclick="window.openPrimfasadModal(); return false;" rel="noopener noreferrer">[about]</a>
+  
   who: () => `
 ██████╗ ██╗███╗   ███╗ █████╗    
 ██╔══██╗██║████╗ ████║██╔══██╗   
@@ -326,28 +375,22 @@ Discord: <a href="https://discordapp.com/users/761573894065881089" target="_blan
 Telegram: <a href="https://t.me/kushnarevdn" target="_blank" rel="noopener noreferrer">https://t.me/kushnarevdn</a>
 
 Projects:
-<a href="https://altar.dimakush.dev/" target="_blank" rel="noopener noreferrer">Altar - onchain giving economy platform</a> <a href="#" onclick="window.openAltarModal(); return false;" rel="noopener noreferrer">[about]</a>
+
 <a href="https://siwe.dimakush.eth.limo/" target="_blank" rel="noopener noreferrer">SIWE Signer</a> <a href="#" onclick="window.openSiweSignerModal(); return false;" rel="noopener noreferrer">[about]</a>
 <a href="https://willer-eth.vercel.app/" target="_blank" rel="noopener noreferrer">Willer - onchain testamentary notary</a> <a href="#" onclick="window.openWillerModal(); return false;" rel="noopener noreferrer">[about]</a>
-<a href="https://indonesianflashcard.vercel.app/" target="_blank" rel="noopener noreferrer">Indonesian Flash Card</a> <a href="#" onclick="window.openIndonesianFlashcardModal(); return false;" rel="noopener noreferrer">[about]</a>
-<a href="https://autozilla.pro/" target="_blank" rel="noopener noreferrer">Autozilla.pro</a> + <a href="https://t.me/Autozilla_bot" target="_blank" rel="noopener noreferrer">Autozilla Bot</a> <a href="#" onclick="window.openAutozillaModal(); return false;" rel="noopener noreferrer">[about]</a>
-<a href="https://t.me/Aia_iai_bot?start=_tgr_JncWzf9hMjBi" target="_blank" rel="noopener noreferrer">AIA image and video generation </a> <a href="#" onclick="window.openAiaModal(); return false;" rel="noopener noreferrer">[about]</a>
 <a href="https://t.me/wgranter_bot" target="_blank" rel="noopener noreferrer">Wish Granter</a> <a href="#" onclick="window.openWishGranterModal(); return false;" rel="noopener noreferrer">[about]</a>
-<a href="https://plantar.fun/register?ref=ref399YXPNOXS7WZY04" target="_blank" rel="noopener noreferrer">Plantar - plant exchange platform</a> <a href="#" onclick="window.openPlantarModal(); return false;" rel="noopener noreferrer">[about]</a>
-<a href="https://pezdota.fun" target="_blank" rel="noopener noreferrer">DotA2 prediction markets</a> <a href="#" onclick="window.openPezdotaModal(); return false;" rel="noopener noreferrer">[about]</a>
 <a href="https://t.me/SportsAlmanacbot?start=_tgr_VxmzTac5Mjhi" target="_blank" rel="noopener noreferrer">SportsAlmanac - sports predictions</a> <a href="#" onclick="window.openSportsAlmanacModal(); return false;" rel="noopener noreferrer">[about]</a>
-<a href="https://thaiflashcard.vercel.app/" target="_blank" rel="noopener noreferrer">Thai Flash Card</a> <a href="#" onclick="window.openThaiFlashcardModal(); return false;" rel="noopener noreferrer">[about]</a>
+<a href="https://indonesianflashcard.vercel.app/" target="_blank" rel="noopener noreferrer">Indonesian Flash Card</a> <a href="#" onclick="window.openIndonesianFlashcardModal(); return false;" rel="noopener noreferrer">[about]</a>
 <a href="https://whitecube.space/" target="_blank" rel="noopener noreferrer">WhiteCube - Engineering Company</a> <a href="#" onclick="window.openWhitecubeModal(); return false;" rel="noopener noreferrer">[about]</a>
 <a href="https://t.me/alexa_ai_official_bot/" target="_blank" rel="noopener noreferrer">Alexa AI - image and video generation</a> <a href="#" onclick="window.openAlexaAiModal(); return false;" rel="noopener noreferrer">[about]</a>
-<a href="https://freebanana.online" target="_blank" rel="noopener noreferrer">freebanana.online</a> + <a href="https://t.me/free_banana_online_bot" target="_blank" rel="noopener noreferrer">Freebanana Bot</a> <a href="#" onclick="window.openGeneriProModal(); return false;" rel="noopener noreferrer">[about]</a>
-<a href="https://t.me/vp_next_bot" target="_blank" rel="noopener noreferrer">vp-next — Telegram VPN bot (Telegram Stars, Xray configs)</a> <a href="#" onclick="window.openVpNextModal(); return false;" rel="noopener noreferrer">[about]</a>
-<a href="https://ConvinceMe.fun" target="_blank" rel="noopener noreferrer">ConvinceMeAI</a> <a href="#" onclick="window.openConvinceMeModal(); return false;" rel="noopener noreferrer">[about]</a>
-<a href="https://contractoor.org/" target="_blank" rel="noopener noreferrer">Contractoor — AI contract risk analysis + translation</a> <a href="#" onclick="window.openContractoorModal(); return false;" rel="noopener noreferrer">[about]</a>
-<a href="https://primfasad.com/" target="_blank" rel="noopener noreferrer">Primfasad — AI facade visualization + turnkey install (Primorye)</a> + <a href="https://t.me/primfasad_bot" target="_blank" rel="noopener noreferrer">Bot</a> <a href="#" onclick="window.openPrimfasadModal(); return false;" rel="noopener noreferrer">[about]</a>
+<a href="https://t.me/pazaru_bot" target="_blank" rel="noopener noreferrer">Pazaru — Telegram Mini App trader game</a> <a href="#" onclick="window.openPazaruModal(); return false;" rel="noopener noreferrer">[about]</a>
+<a href="https://www.npmjs.com/package/walletconnect-mcp-server" target="_blank" rel="noopener noreferrer">WalletConnect MCP — Cursor plugin</a> <a href="#" onclick="window.openWalletConnectMcpModal(); return false;" rel="noopener noreferrer">[about]</a>
+<a href="https://wedding-invitation.dimakush.dev/" target="_blank" rel="noopener noreferrer">Wedding Invitation — Calista & Dmitrii</a> <a href="#" onclick="window.openWeddingInviteModal(); return false;" rel="noopener noreferrer">[about]</a>
+<a href="https://vyoksa.ru/" target="_blank" rel="noopener noreferrer">Vyoksa — procurement workspace</a> <a href="#" onclick="window.openVeksaModal(); return false;" rel="noopener noreferrer">[about]</a>
 
 Background:
-• Since 2020: Living and working remotely across Southeast Asia
 • Since 2022: Building web3 projects and providing psychological counseling
+• Since 2020: Living and working remotely across Southeast Asia
 • 2017-2019: Self-employed at Printing Company
 • 2015-2018: Design Engineer at Alpha Engineering
 • 2012-2015: Design Engineer at Amira LLC
